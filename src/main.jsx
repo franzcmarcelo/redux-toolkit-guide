@@ -5,6 +5,7 @@ import { store } from './store';
 
 import CounterApp from './CounterApp'
 import PokeApp from './PokeApp'
+import TodosApp from './TodosApp'
 import './index.css'
 
 
@@ -17,6 +18,8 @@ root.render(
       <CounterApp />
       <hr />
       <PokeApp />
+      <hr />
+      <TodosApp />
     </Provider>
   </React.StrictMode>
 )

@@ -14,8 +14,8 @@ a:hover {
 }
 
 body {
-  height: 100vh;
-  margin: 15% 0 0;
+  height: 100%;
+  margin: 15% 0;
   display: flex;
   justify-content: center;
   align-items: start;
