@@ -56,3 +56,9 @@ button:focus-visible {
 hr {
   margin: 10% 0;
 }
+
+.pokesGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+}
