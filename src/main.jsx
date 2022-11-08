@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux';
 import { store } from './store';
 
-import App from './App'
+import CounterApp from './CounterApp'
+import PokeApp from './PokeApp'
 import './index.css'
 
 
@@ -13,7 +14,9 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <CounterApp />
+      <hr />
+      <PokeApp />
     </Provider>
   </React.StrictMode>
 )
