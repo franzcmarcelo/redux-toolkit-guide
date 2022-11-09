@@ -48,18 +48,18 @@ const TodosApp = () => {
           )
       }
 
-      <h3>Get one todo by id</h3>
+      <h3>Get one todo by id ({idTodo})</h3>
 
       {
         isLoadingTodo
           ? (
             <p>Loading...</p>
           ) : (
-            <>
+            <div>
               <p><strong>{dataTodo.id} - </strong>{dataTodo.title}</p>
               <button onClick={() => setIdTodo(idTodo - 1)}>Prev todo</button>
-              <button onClick={() => setIdTodo(idTodo + 1)}>Next todo</button>
-            </>
+              <button onClick={() => setIdTodo(idTodo + 1)} style={{marginLeft: '10px'}}>Next todo</button>
+            </div>
           )
       }
 

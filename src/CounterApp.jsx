@@ -14,6 +14,7 @@ function App() {
   return (
     <div className="app">
       <h1>Counter App</h1>
+      <h2>Redux state</h2>
       <h2>Count: {counter}</h2>
       <div className="actions">
         <button onClick={handleIncrement}>Increment</button>

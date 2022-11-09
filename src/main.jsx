@@ -15,6 +15,9 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <Provider store={store}>
+      <h1>Redux Toolkit</h1>
+      <h2>Redux State - Thunk - RKT Query</h2>
+      <hr />
       <CounterApp />
       <hr />
       <PokeApp />
