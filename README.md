@@ -258,3 +258,74 @@ Redux is a better solution for managing state in React applications.
 
 Quote:
 *New **context** is ready to be used for low frequency unlikely updates (like local/theme). It's also good to use it in the same way as old context was used. for example for static values and then propagate update through subscriptions. **It's not ready to be used as a replacement for all Flux-like state propagation.***
+
+<br>
+<hr>
+<br>
+
+## [Async Logic and Data Fetching](https://redux.js.org/tutorials/fundamentals/part-6-async-logic)
+
+### Redux Middleware and Side Effects
+
+By itself, a Redux store doesn't know anything about async logic. It only knows how to synchronously dispatch actions, update the state by calling the root reducer function, and notify the UI that something has changed. Any asynchronicity has to happen outside the store.
+
+Earlier, we said that Redux reducers must never contain "side effects". **A "side effect" is any change to state or behavior that can be seen outside of returning a value from a function**. Some common kinds of side effects are things like:
+
+- Logging a value to the console.
+- Saving a file.
+- Setting an async timer.
+- Making an AJAX HTTP request.
+- Modifying some state that exists outside of a function, or mutating arguments to a function.
+- Generating random numbers or unique random IDs (such as Math.random() or Date.now()).
+
+### **THUNK**: Writing an Async Function Middleware (Not Middleware)
+
+Unlike middlewares, which are functions that can inspect every action that passes through the store, **thunks are async functions that can be dispatched like normal actions and inside them, we can call dispatch() to dispatch actions as needed**.
+
+Thunks can access to dispatch and getState so that we can interact with the store and inspect the current state and dispatch actions themselves.
+
+Thunks are not part of the Redux core.
+
+```js
+// thunks/getPokemons.js
+
+export const getPokemons = (page = 0) => {
+
+  // Return Thunk:
+  return async (dispatch, getState) => {
+
+    // can dispatch actions
+    dispatch(startFetch());
+
+    const limit = 10;
+    const url = `/pokemon?limit=${limit}&offset=${page * limit}`;
+
+    const { data } = await pokeApi.get(url);
+    const { results: pokemons } = data;
+
+    dispatch(setPokemons({
+      pokemons,
+      page,
+    }));
+
+    // can access to the state
+    const state = getState()
+
+    dispatch(stopFetch());
+  }
+}
+```
+
+```js
+// app.js
+
+const dispatch = useDispatch()
+const { page, pokemons, loading } = useSelector(state => state.poke)
+
+useEffect(() => {
+  // dispatch(thunk)
+  dispatch(getPokemons(page))
+}, [])
+
+const handleNextPage = () => dispatch(getPokemons(page + 1));
+```
