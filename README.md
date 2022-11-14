@@ -223,31 +223,35 @@ const countReducer = (state = {}, action) => {
   }
 }
 
-// index.js
+// contextApp.js
 import { useReducer } from 'react';
 import countReducer from './countReducer';
 
+const contextApp = () => {
+
 const [state, dispatch] = useReducer(countReducer, initialState, initializer);
 
-const handleIncrement = () => {
-    // ...
-    dispatch({
-        type: 'INCREMENT',
-        payload: 1
-    });
-}
 
-// this reducer has to be provided by the context, to be consumed by the components
+  // the reducer actions have to be provided by the context, to be consumed by components.
 
-const dataProvided = {
+  const handleIncrement = () => {
+      // ...
+      dispatch({
+          type: 'INCREMENT',
+          payload: 1
+      });
+  }
+
+  const dataProvided = {
     state,
     handleIncrement
-};
-const Context = createContext();
+  };
+  const Context = createContext();
 
-<Context.Provider value={ dataProvided }>
-    <App />
-</Context.Provider>
+  <Context.Provider value={ dataProvided }>
+      <App />
+  </Context.Provider>
+}
 ```
 
 However, this implementation is not recommended.
@@ -259,13 +263,18 @@ Redux is a better solution for managing state in React applications.
 Quote:
 *New **context** is ready to be used for low frequency unlikely updates (like local/theme). It's also good to use it in the same way as old context was used. for example for static values and then propagate update through subscriptions. **It's not ready to be used as a replacement for all Flux-like state propagation.***
 
+Refference:
+
+- [React Context vs Redux - Who wins?](https://youtu.be/OvM4hIxrqAw)
+- [useContext() + useReducer() = Magic?](https://youtu.be/R_7XRX7nLsw)
+
 <br>
 <hr>
 <br>
 
 ## [Async Logic and Data Fetching](https://redux.js.org/tutorials/fundamentals/part-6-async-logic)
 
-### Redux Middleware and Side Effects
+### **Redux Middleware and Side Effects**
 
 By itself, a Redux store doesn't know anything about async logic. It only knows how to synchronously dispatch actions, update the state by calling the root reducer function, and notify the UI that something has changed. Any asynchronicity has to happen outside the store.
 
@@ -277,6 +286,8 @@ Earlier, we said that Redux reducers must never contain "side effects". **A "sid
 - Making an AJAX HTTP request.
 - Modifying some state that exists outside of a function, or mutating arguments to a function.
 - Generating random numbers or unique random IDs (such as Math.random() or Date.now()).
+
+<br>
 
 ### **THUNK**: Writing an Async Function Middleware (Not Middleware)
 
@@ -328,4 +339,118 @@ useEffect(() => {
 }, [])
 
 const handleNextPage = () => dispatch(getPokemons(page + 1));
+```
+
+<hr>
+<br>
+
+## [RKT Query](https://redux-toolkit.js.org/rtk-query/overview)
+
+Is a **powerful data fetching and caching tool**. It is designed to simplify common cases for loading data in a web application, eliminating the need to hand-write data fetching & caching logic yourself.
+
+RTK Query is an optional addon included in the Redux Toolkit package.
+
+Help us with:
+
+- Tracking loading state in order to show UI spinners.
+- Avoiding duplicate requests for the same data.
+- Optimistic updates to make the UI feel faster.
+- Managing cache lifetimes as the user interacts with the UI.
+
+RTK Query takes inspiration from other tools that have pioneered solutions for data fetching, like Apollo Client, React Query, Urql, and SWR, but adds a unique approach to its API design:
+
+- API endpoints are defined ahead of time, including how to generate query parameters from arguments and transform responses for caching.
+- RTK Query can also generate React hooks that encapsulate the entire data fetching process, provide data and isLoading fields to components, and manage the lifetime of cached data as components mount and unmount.
+
+<br>
+
+### APIs
+
+- `createApi()`: The core of RTK Query's functionality. It allows you to define a **set of endpoints describe how to retrieve data from a series of endpoints**, including configuration of how to fetch and transform that data. In most cases, you should use this **once per app, with "one API slice per base URL"** as a rule of thumb.
+- `fetchBaseQuery()`: A small wrapper around fetch that aims to simplify requests. Intended as the recommended baseQuery to be used in createApi for the majority of users.
+
+<br>
+
+### Usage
+
+**Create an API Slice:**
+
+```js
+import { createApi } from '@reduxjs/toolkit/query'
+
+/* React-specific entry point that automatically generates
+   hooks corresponding to the defined endpoints */
+import { createApi } from '@reduxjs/toolkit/query/react'
+```
+
+Defining an `API slice` that lists the server's base URL and which endpoints we want to interact with:
+
+```js
+// Define a service using a base URL and expected endpoints
+export const todosApi = createApi({
+
+  reducerPath: 'todosApi',
+
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'https://jsonplaceholder.typicode.com',
+  }),
+
+  endpoints: (builder) => ({
+
+    getTodos: builder.query({
+      query: () => `/todos`,
+    }),
+
+    getTodoById: builder.query({
+      query: (id) => `/todos/${id}`,
+    }),
+
+  }),
+});
+
+// Export `query hooks`, which are auto-generated based on the defined endpoints.
+
+const {
+  useGetTodosQuery,
+  useGetTodoByIdQuery,
+} = todosApi;
+
+```
+
+**Configure the Store:**
+
+The "API slice" also contains an auto-generated Redux slice reducer and a custom middleware that manages subscription lifetimes. Both of those need to be added to the Redux store:
+
+```js
+import { configureStore } from '@reduxjs/toolkit'
+import { todosApi } from './RKTQuery'
+
+export const store = configureStore({
+  reducer: {
+    // Add the generated reducer as a specific top-level slice
+    [todosApi.reducerPath]: todosApi.reducer,
+  },
+  // Adding the api middleware enables caching, invalidation, polling,
+  // and other useful features of `rtk-query`.
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(todosApi.middleware),
+})
+```
+
+**Use Hooks in Components:**
+
+```js
+import { useGetTodosQuery } from './store/RKTQuery'
+
+const TodosApp = () => {
+
+  // Using a query hook automatically fetches data and returns query values
+
+  const {
+    data,
+    isLoading,
+    error,
+    isFetching,
+  } = useGetTodosQuery();
+}
+
 ```
