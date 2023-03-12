@@ -35,6 +35,7 @@ Redux vs React-Redux vs Redux Toolkit
 ### Store
 
 ```js
+// store/store.js
 import { configureStore } from '@reduxjs/toolkit';
 
 export const store = configureStore({
@@ -47,6 +48,7 @@ export const store = configureStore({
 ### Provider
 
 ```js
+// index.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -70,6 +72,7 @@ root.render(
 createSlice is a function that accepts an **initial state**, an object **full of reducer functions**, and a **slice name**, and return an object with **reducer** to pass to the store, and **actions** to dispatch.
 
 ```js
+// store/slices/counter/counterSlice.js
 import { createSlice } from '@reduxjs/toolkit'
 
 const counterSlice = createSlice({
@@ -94,6 +97,7 @@ const counterSlice = createSlice({
 })
 
 const { reducer: counterReducer, actions } = counterSlice;
+// Action creators are generated for each case reducer function
 const { increment, decrement, incrementByAmount, reset } = actions;
 
 export {
@@ -132,6 +136,7 @@ increment: (state) => {
 ### Update Store
 
 ```js
+// store/store.js
 import { configureStore } from '@reduxjs/toolkit'
 import { counterReducer } from './slices/counter'
 
